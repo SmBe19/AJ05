@@ -25,13 +25,13 @@ float grid_dist(float val) {
 void main() {
     vec3 posmod = fract(v_position);
     float grid = 0.0;
-    if (abs(v_normal.x) < 1-gridsize) {
+    if (abs(v_normal.x) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.x));
     }
-    if (abs(v_normal.y) < 1-gridsize) {
+    if (abs(v_normal.y) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.y));
     }
-    if (abs(v_normal.z) < 1-gridsize) {
+    if (abs(v_normal.z) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.z));
     }
 
@@ -46,23 +46,23 @@ void main() {
 
     if (length(v_positionGlobal) < 150.0) {
         highlight = max(highlight, (
-            smoothstep(0.995, 1, sin((v_positionGlobal.x)*0.2 + 11.0 + u_time*0.01)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.z + u_time*17.0 - floor(v_positionGlobal.x*0.1)*33.0)*0.1 + 7.0))
+            smoothstep(0.995, 1.0, sin((v_positionGlobal.x)*0.2 + 11.0 + u_time*0.01)) *
+            smoothstep(0.98, 1.0, sin((v_positionGlobal.z + u_time*17.0 - floor(v_positionGlobal.x*0.1)*33.0)*0.1 + 7.0))
         ));
 
         highlight = max(highlight, (
-            smoothstep(0.995, 1, sin((v_positionGlobal.x)*0.2 + 77.0 + u_time*0.012)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.z*0.23 - u_time*7.0 - floor(v_positionGlobal.x*0.1)*37.0)*0.1 + 7.0))
+            smoothstep(0.995, 1.0, sin((v_positionGlobal.x)*0.2 + 77.0 + u_time*0.012)) *
+            smoothstep(0.98, 1.0, sin((v_positionGlobal.z*0.23 - u_time*7.0 - floor(v_positionGlobal.x*0.1)*37.0)*0.1 + 7.0))
         ));
 
         highlight = max(highlight, (
-            smoothstep(0.995, 1, sin((v_positionGlobal.z)*0.2 + 11.0 + u_time*0.011)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.x + u_time*9.0 - floor(v_positionGlobal.z*0.1)*35.0)*0.1 + 7.0))
+            smoothstep(0.995, 1.0, sin((v_positionGlobal.z)*0.2 + 11.0 + u_time*0.011)) *
+            smoothstep(0.98, 1.0, sin((v_positionGlobal.x + u_time*9.0 - floor(v_positionGlobal.z*0.1)*35.0)*0.1 + 7.0))
         ));
 
         highlight = max(highlight, (
-            smoothstep(0.995, 1, sin((v_positionGlobal.z)*0.2 + 77.0 + u_time*0.013)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.x*0.23 - u_time*11.0 - floor(v_positionGlobal.z*0.1)*31.0)*0.1 + 7.0))
+            smoothstep(0.995, 1.0, sin((v_positionGlobal.z)*0.2 + 77.0 + u_time*0.013)) *
+            smoothstep(0.98, 1.0, sin((v_positionGlobal.x*0.23 - u_time*11.0 - floor(v_positionGlobal.z*0.1)*31.0)*0.1 + 7.0))
         ));
     }
 
