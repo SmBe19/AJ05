@@ -60,6 +60,9 @@ public class GameScreen implements Screen {
     private float downspeed;
     private boolean inAir;
 
+    private float spellCharge;
+    private boolean didBoom;
+
     public GameScreen() {
         vec3 = new Vector3();
 
@@ -135,6 +138,8 @@ public class GameScreen implements Screen {
         speed = 0;
         downspeed = 100;
         inAir = false;
+        spellCharge = 0;
+        didBoom = false;
         camera.position.setZero();
         camera.update();
     }
@@ -151,6 +156,10 @@ public class GameScreen implements Screen {
 
     public void addAnimal() {
         animals.add(new Animal(this, modelAnimals.get(MathUtils.random(modelAnimals.size()-1))));
+    }
+
+    public void boom() {
+        // TODO implement
     }
 
     public float getFloorHeight(float x, float z) {
@@ -232,6 +241,17 @@ public class GameScreen implements Screen {
 
         camera.update();
 
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            spellCharge += delta;
+            didBoom = false;
+        } else {
+            if (!didBoom && spellCharge > 1) {
+                boom();
+                didBoom = true;
+            }
+            spellCharge *= 0.8f;
+        }
+
         if (MathUtils.randomBoolean(0.001f)) {
             addTree();
         }
@@ -268,8 +288,9 @@ public class GameScreen implements Screen {
 
         spriteBatch.begin();
         postShader.setUniformf("u_time", time);
-        postShader.setUniformf("u_wobble", 1);
-        postShader.setUniformf("u_speed", speed/25f);
+        postShader.setUniformf("u_wobble", 1f + spellCharge * 7f);
+        postShader.setUniformf("u_speed", speed/25f + spellCharge * 0.3f);
+        postShader.setUniformf("u_spell", spellCharge*0.1f);
         spriteBatch.draw(frameBufferTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         spriteBatch.end();
     }

@@ -13,6 +13,9 @@ uniform sampler2D u_texture;
 uniform float u_time;
 uniform float u_wobble = 1.0;
 uniform float u_speed = 0.0;
+uniform float u_spell = 0.0;
+const float u_spell_rings = 5.0;
+const float u_spell_count = 9.0;
 
 void main(void) {
   vec2 coord = v_texCoords;
@@ -24,6 +27,16 @@ void main(void) {
   coord.y += sin(u_time*3.141*0.5+v_texCoords.x*3.141*8.0)*0.001*wobble;
   gl_FragColor = v_color * texture2D(u_texture, coord);
   gl_FragColor *= 1.5 - 2.0*length(v_texCoords - vec2(0.5, 0.5));
+
+  if (u_spell > 0.001) {
+      float dist = 100.0;
+      for(float j = 0; j < u_spell_rings; j++) {
+          for(float i = 0; i < u_spell_count; i++) {
+            dist = min(dist, length(coord - vec2(sin(u_time * (4.0-j*0.3) + i*6.282/u_spell_count), cos(u_time * (4.0-j*0.5) + i*6.282/u_spell_count)) * (0.05 + 0.05*j) * (u_spell * 4.0) - vec2(0.5, 0.45)));
+          }
+      }
+      gl_FragColor.rgb += (vec3(1.0) - vec3(smoothstep(0.0, 0.02 * smoothstep(u_spell, 0, 0.01), dist)));
+  }
 
   gl_FragColor.r += smoothstep(0.5, 1.0, u_speed) * 0.12;
 }

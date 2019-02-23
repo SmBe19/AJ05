@@ -27,7 +27,7 @@ public class Animal {
         destZ = z;
         jumpSpeed = MathUtils.random(0.1f, 5f);
         jumpHeight = MathUtils.random(0.1f, 5f);
-        walkSpeed = MathUtils.random(2f, 10f);
+        walkSpeed = MathUtils.random(1f, 7f);
 
         vec3 = new Vector3();
     }
@@ -47,7 +47,7 @@ public class Animal {
             float floor = gameScreen.getFloorHeight(vec3.x, vec3.z);
             jumpProgress += delta * jumpSpeed;
             modelInstance.transform.translate(0, floor + (MathUtils.sin(jumpProgress)*0.5f+0.5f) * jumpHeight + 1 - vec3.y, 0);
-            vec3.set(dx, 0, dz).nor().scl(delta);
+            vec3.set(dx, 0, dz).nor().scl(delta*walkSpeed);
             modelInstance.transform.translate(vec3);
         }
         modelInstance.calculateTransforms();
