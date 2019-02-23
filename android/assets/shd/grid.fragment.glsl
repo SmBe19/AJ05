@@ -16,6 +16,8 @@ varying vec4 v_positionGlobal;
 varying vec3 v_normal;
 varying vec2 v_texCoord0;
 
+uniform vec4 u_diffuseColor;
+
 const float gridsize = 0.12;
 
 float grid_dist(float val) {
@@ -69,5 +71,11 @@ void main() {
     gl_FragColor.r = grid * highlight;
     if (gl_FragColor.r > 0.5) {
         gl_FragColor.bg *= 0.3;
+    }
+
+    gl_FragColor.rgb *= sin(u_time*0.1)*0.05+0.95;
+
+    if (u_diffuseColor.r > 0.2) {
+        gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, sin(u_time*4.0*u_diffuseColor.r)*0.5+0.5);
     }
 }

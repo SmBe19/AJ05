@@ -2,19 +2,23 @@ package com.smeanox.games.aj05.world;
 
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.smeanox.games.aj05.screen.GameScreen;
 
 public class Animal {
 
     public final GameScreen gameScreen;
     public final ModelInstance modelInstance;
+    public final BoundingBox boundingBox;
 
     private Vector3 vec3;
     private float destX, destZ;
     private float jumpProgress;
     private float jumpSpeed, jumpHeight, walkSpeed;
+    private float death;
 
     public Animal(GameScreen gameScreen, Model model) {
         this.gameScreen = gameScreen;
@@ -22,12 +26,15 @@ public class Animal {
         float x = MathUtils.random(-90f, 90f);
         float z = MathUtils.random(-90f, 90f);
         modelInstance.transform.translate(x, gameScreen.getFloorHeight(x, z) + 1, z);
+        boundingBox = new BoundingBox();
 
         destX = x;
         destZ = z;
         jumpSpeed = MathUtils.random(0.1f, 5f);
         jumpHeight = MathUtils.random(0.1f, 5f);
         walkSpeed = MathUtils.random(1f, 7f);
+
+        death = 0;
 
         vec3 = new Vector3();
     }
@@ -51,5 +58,19 @@ public class Animal {
             modelInstance.transform.translate(vec3);
         }
         modelInstance.calculateTransforms();
+        modelInstance.calculateBoundingBox(boundingBox);
+
+        if (death > 1) {
+            death += delta;
+        }
+    }
+
+    public float getDeath() {
+        return death;
+    }
+
+    public void setDeath(float death) {
+        this.death = death;
+        this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, 0, 0, 1));
     }
 }

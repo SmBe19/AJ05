@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
@@ -23,6 +24,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.smeanox.games.aj05.world.Animal;
+import com.smeanox.games.aj05.world.Bullet;
+import com.smeanox.games.aj05.world.Tree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +54,12 @@ public class GameScreen implements Screen {
     private ModelInstance sun;
 
     private Model modelTree;
-    private List<ModelInstance> trees;
+    private List<Tree> trees;
 
     private List<Model> modelAnimals;
     private List<Animal> animals;
+
+    private List<Bullet> bullets;
 
     private float speed;
     private float downspeed;
@@ -62,6 +67,8 @@ public class GameScreen implements Screen {
 
     private float spellCharge;
     private boolean didBoom;
+
+    // TODO menu item to adjust mouse sensitivity
 
     public GameScreen() {
         vec3 = new Vector3();
@@ -95,6 +102,7 @@ public class GameScreen implements Screen {
         modelLoader = new ObjLoader();
 
         modelTest1 = modelLoader.loadModel(Gdx.files.internal("obj/test1.obj"));
+        modelTest1.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
         test1 = new ModelInstance(modelTest1);
         test1.calculateTransforms();
 
@@ -110,24 +118,30 @@ public class GameScreen implements Screen {
         }
 
         modelSphere = modelLoader.loadModel(Gdx.files.internal("obj/sphere.obj"));
+        modelSphere.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
         moon = new ModelInstance(modelSphere);
         sun = new ModelInstance(modelSphere);
 
         modelTree = modelLoader.loadModel(Gdx.files.internal("obj/tree.obj"));
-        trees = new ArrayList<ModelInstance>();
+        modelTree.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
+        trees = new ArrayList<Tree>();
         for (int i = 0; i < 10; i++) {
             addTree();
         }
 
         modelAnimals = new ArrayList<Model>();
         for (int i = 0; i < 2; i++) {
-            modelAnimals.add(modelLoader.loadModel(Gdx.files.internal("obj/animal" + (i+1) + ".obj")));
+            Model model = modelLoader.loadModel(Gdx.files.internal("obj/animal" + (i + 1) + ".obj"));
+            model.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
+            modelAnimals.add(model);
         }
 
         animals = new ArrayList<Animal>();
         for (int i = 0; i < 10; i++) {
             addAnimal();
         }
+
+        bullets = new ArrayList<Bullet>();
 
         Gdx.input.setCursorCatched(true);
 
@@ -145,8 +159,7 @@ public class GameScreen implements Screen {
     }
 
     public void addTree(float x, float z) {
-        ModelInstance tree = new ModelInstance(modelTree);
-        tree.transform.translate(x, getFloorHeight(x, z)+5, z);
+        Tree tree = new Tree(modelTree, x, getFloorHeight(x, z)+5, z);
         trees.add(tree);
     }
 
@@ -159,7 +172,9 @@ public class GameScreen implements Screen {
     }
 
     public void boom() {
-        // TODO implement
+        for (int i = 0; i < spellCharge * spellCharge * 3; i++) {
+            bullets.add(new Bullet(this, modelSphere, camera.position, camera.direction, spellCharge * spellCharge * 0.5f));
+        }
     }
 
     public float getFloorHeight(float x, float z) {
@@ -202,8 +217,32 @@ public class GameScreen implements Screen {
         sun.transform.rotate(0, 1, 0, -200*time);
         sun.transform.scale(50, 50, 50);
 
+        for (Tree tree : trees) {
+            tree.update(delta);
+        }
         for (Animal animal : animals) {
             animal.update(delta);
+        }
+
+        for (Bullet bullet : bullets) {
+            bullet.update(delta);
+        }
+        for (int i = trees.size()-1; i >= 0; i--) {
+            if (trees.get(i).getDeath() > 3) {
+                trees.remove(i);
+            }
+        }
+        for (int i = animals.size()-1; i >= 0; i--) {
+            if (animals.get(i).getDeath() > 2) {
+                animals.get(i).modelInstance.transform.getTranslation(vec3);
+                addTree(vec3.x, vec3.z);
+                animals.remove(i);
+            }
+        }
+        for (int i = bullets.size()-1; i >= 0; i--) {
+            if (bullets.get(i).dead) {
+                bullets.remove(i);
+            }
         }
 
         float minheight = getFloorHeight(camera.position.x, camera.position.z) + 3;
@@ -271,11 +310,14 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
         modelBatch.render(test1);
-        for (ModelInstance tree : trees) {
-            modelBatch.render(tree);
+        for (Tree tree : trees) {
+            modelBatch.render(tree.modelInstance);
         }
         for (Animal animal : animals) {
             modelBatch.render(animal.modelInstance);
+        }
+        for (Bullet bullet : bullets) {
+            modelBatch.render(bullet.modelInstance);
         }
         modelBatch.render(sun);
         modelBatch.render(moon);
@@ -326,5 +368,13 @@ public class GameScreen implements Screen {
         for (Model modelAnimal : modelAnimals) {
             modelAnimal.dispose();
         }
+    }
+
+    public List<Animal> getAnimals() {
+        return animals;
+    }
+
+    public List<Tree> getTrees() {
+        return trees;
     }
 }
