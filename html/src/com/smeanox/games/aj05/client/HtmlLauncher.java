@@ -4,13 +4,16 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.smeanox.games.aj05.AJ05;
+import com.smeanox.games.aj05.Consts;
 
 public class HtmlLauncher extends GwtApplication {
 
         // USE THIS CODE FOR A FIXED SIZE APPLICATION
         @Override
         public GwtApplicationConfiguration getConfig () {
-                return new GwtApplicationConfiguration(480, 320);
+                GwtApplicationConfiguration config = new GwtApplicationConfiguration(Consts.WND_WIDTH, Consts.WND_HEIGHT);
+                config.antialiasing = true;
+                return config;
         }
         // END CODE FOR FIXED SIZE APPLICATION
 

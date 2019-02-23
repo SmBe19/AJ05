@@ -1,10 +1,12 @@
 package com.smeanox.games.aj05.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,11 +15,14 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.smeanox.games.aj05.world.Animal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +38,13 @@ public class GameScreen implements Screen {
     private TextureRegion frameBufferTexture;
     private ShaderProgram postShader;
     private Camera camera;
-    private CameraInputController cameraInputController;
+
+    private Vector3 vec3;
 
     private Model modelTest1;
     private ModelInstance test1;
+    private int test1VerticesSize;
+    private List<float[]> test1Vertices;
 
     private Model modelSphere;
     private ModelInstance moon;
@@ -45,7 +53,16 @@ public class GameScreen implements Screen {
     private Model modelTree;
     private List<ModelInstance> trees;
 
+    private List<Model> modelAnimals;
+    private List<Animal> animals;
+
+    private float speed;
+    private float downspeed;
+    private boolean inAir;
+
     public GameScreen() {
+        vec3 = new Vector3();
+
         String vertexShader = Gdx.files.internal("shd/grid.vertex.glsl").readString();
         String fragmentShader = Gdx.files.internal("shd/grid.fragment.glsl").readString();
         modelBatch = new ModelBatch(vertexShader, fragmentShader);
@@ -72,13 +89,22 @@ public class GameScreen implements Screen {
         frameBufferTexture = new TextureRegion(frameBuffer.getColorBufferTexture());
         frameBufferTexture.flip(false, true);
 
-        cameraInputController = new CameraInputController(camera);
-        Gdx.input.setInputProcessor(cameraInputController);
-
         modelLoader = new ObjLoader();
 
         modelTest1 = modelLoader.loadModel(Gdx.files.internal("obj/test1.obj"));
         test1 = new ModelInstance(modelTest1);
+        test1.calculateTransforms();
+
+        test1Vertices = new ArrayList<float[]>();
+        for (Node node : test1.nodes) {
+            for (NodePart part : node.parts) {
+                Mesh mesh = part.meshPart.mesh;
+                test1VerticesSize = mesh.getVertexSize()/4;
+                float[] vertices = new float[mesh.getNumVertices()*test1VerticesSize];
+                mesh.getVertices(vertices);
+                test1Vertices.add(vertices);
+            }
+        }
 
         modelSphere = modelLoader.loadModel(Gdx.files.internal("obj/sphere.obj"));
         moon = new ModelInstance(modelSphere);
@@ -86,13 +112,69 @@ public class GameScreen implements Screen {
 
         modelTree = modelLoader.loadModel(Gdx.files.internal("obj/tree.obj"));
         trees = new ArrayList<ModelInstance>();
-        for(int x = -4; x < 5; x++) {
-            for (int z = -4; z < 5; z++) {
-                ModelInstance tree = new ModelInstance(modelTree);
-                tree.transform.translate(x*20, 0, z*20);
-                trees.add(tree);
+        for (int i = 0; i < 10; i++) {
+            addTree();
+        }
+
+        modelAnimals = new ArrayList<Model>();
+        for (int i = 0; i < 2; i++) {
+            modelAnimals.add(modelLoader.loadModel(Gdx.files.internal("obj/animal" + (i+1) + ".obj")));
+        }
+
+        animals = new ArrayList<Animal>();
+        for (int i = 0; i < 10; i++) {
+            addAnimal();
+        }
+
+        Gdx.input.setCursorCatched(true);
+
+        reset();
+    }
+
+    public void reset() {
+        speed = 0;
+        downspeed = 100;
+        inAir = false;
+        camera.position.setZero();
+        camera.update();
+    }
+
+    public void addTree(float x, float z) {
+        ModelInstance tree = new ModelInstance(modelTree);
+        tree.transform.translate(x, getFloorHeight(x, z)+5, z);
+        trees.add(tree);
+    }
+
+    public void addTree() {
+        addTree(MathUtils.random(-90f, 90f), MathUtils.random(-90f, 90f));
+    }
+
+    public void addAnimal() {
+        animals.add(new Animal(this, modelAnimals.get(MathUtils.random(modelAnimals.size()-1))));
+    }
+
+    public float getFloorHeight(float x, float z) {
+        float res = -1000;
+        for (float[] vertices : test1Vertices) {
+            for (int i = 0; i < vertices.length; i += test1VerticesSize*3) {
+                float x1 = vertices[i];
+                float y1 = vertices[i+1];
+                float z1 = vertices[i+2];
+                float x2 = vertices[i+test1VerticesSize];
+                float y2 = vertices[i+test1VerticesSize+1];
+                float z2 = vertices[i+test1VerticesSize+2];
+                float x3 = vertices[i+test1VerticesSize*2];
+                float y3 = vertices[i+test1VerticesSize*2+1];
+                float z3 = vertices[i+test1VerticesSize*2+2];
+                float l1 = ((z2 - z3) * (x - x3) + (x3 - x2) * (z - z3)) / ((z2 - z3) * (x1 - x3) + (x3 - x2) * (z1 - z3));
+                float l2 = ((z3 - z1) * (x - x3) + (x1 - x3) * (z - z3)) / ((z2 - z3) * (x1 - x3) + (x3 - x2) * (z1 - z3));
+                float l3 = 1 - l1 - l2;
+                if (0 <= l1 && l1 <= 1 && 0 <= l2 && l2 <= 1 && 0 <= l3 && l3 <= 1) {
+                    res = Math.max(res, l1*y1 + l2*y2 + l3*y3);
+                }
             }
         }
+        return res;
     }
 
     @Override
@@ -110,6 +192,52 @@ public class GameScreen implements Screen {
         sun.transform.setToTranslation(-200, 100*MathUtils.cos(time*0.2f), 100*MathUtils.sin(time*0.2f));
         sun.transform.rotate(0, 1, 0, -200*time);
         sun.transform.scale(50, 50, 50);
+
+        for (Animal animal : animals) {
+            animal.update(delta);
+        }
+
+        float minheight = getFloorHeight(camera.position.x, camera.position.z) + 3;
+        if (speed < 10 && downspeed < 100) {
+            downspeed += delta * 10;
+        } else {
+            downspeed = 0;
+        }
+        camera.translate(0, -downspeed*delta, 0);
+
+        camera.position.y = Math.max(camera.position.y, minheight);
+
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            speed += delta * 2;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            speed -= delta * 7;
+        }
+        speed = MathUtils.clamp(speed, 0, 25);
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            camera.rotate(camera.up, delta*40);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            camera.rotate(camera.up, -delta*40);
+        }
+
+        camera.position.clamp(0, 100);
+
+        camera.rotate(camera.direction, Gdx.input.getDeltaX() * delta * 20);
+        vec3.set(camera.direction).crs(camera.up);
+        camera.rotate(vec3, Gdx.input.getDeltaY() * delta * 20);
+
+        vec3.set(camera.direction).scl(delta*speed);
+        camera.translate(vec3);
+
+        camera.update();
+
+        if (MathUtils.randomBoolean(0.001f)) {
+            addTree();
+        }
+        if (MathUtils.randomBoolean(0.01f)) {
+            addAnimal();
+        }
     }
 
     @Override
@@ -126,6 +254,9 @@ public class GameScreen implements Screen {
         for (ModelInstance tree : trees) {
             modelBatch.render(tree);
         }
+        for (Animal animal : animals) {
+            modelBatch.render(animal.modelInstance);
+        }
         modelBatch.render(sun);
         modelBatch.render(moon);
         modelBatch.end();
@@ -138,6 +269,7 @@ public class GameScreen implements Screen {
         spriteBatch.begin();
         postShader.setUniformf("u_time", time);
         postShader.setUniformf("u_wobble", 1);
+        postShader.setUniformf("u_speed", speed/25f);
         spriteBatch.draw(frameBufferTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         spriteBatch.end();
     }
@@ -169,5 +301,9 @@ public class GameScreen implements Screen {
         modelSphere.dispose();
         modelTree.dispose();
         postShader.dispose();
+
+        for (Model modelAnimal : modelAnimals) {
+            modelAnimal.dispose();
+        }
     }
 }
