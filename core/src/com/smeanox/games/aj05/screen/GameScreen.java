@@ -19,6 +19,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameScreen implements Screen {
 
     private float time;
@@ -38,6 +41,9 @@ public class GameScreen implements Screen {
     private Model modelSphere;
     private ModelInstance moon;
     private ModelInstance sun;
+
+    private Model modelTree;
+    private List<ModelInstance> trees;
 
     public GameScreen() {
         String vertexShader = Gdx.files.internal("shd/grid.vertex.glsl").readString();
@@ -76,8 +82,17 @@ public class GameScreen implements Screen {
 
         modelSphere = modelLoader.loadModel(Gdx.files.internal("obj/sphere.obj"));
         moon = new ModelInstance(modelSphere);
-        moon.transform.translate(10, 10, 0);
         sun = new ModelInstance(modelSphere);
+
+        modelTree = modelLoader.loadModel(Gdx.files.internal("obj/tree.obj"));
+        trees = new ArrayList<ModelInstance>();
+        for(int x = -4; x < 5; x++) {
+            for (int z = -4; z < 5; z++) {
+                ModelInstance tree = new ModelInstance(modelTree);
+                tree.transform.translate(x*20, 0, z*20);
+                trees.add(tree);
+            }
+        }
     }
 
     @Override
@@ -92,7 +107,7 @@ public class GameScreen implements Screen {
         moon.transform.rotate(0, 1, 0, -100*time);
         moon.transform.scale(10, 10, 10);
 
-        sun.transform.setToTranslation(100*MathUtils.sin(time*0.2f), 100*MathUtils.cos(time*0.2f), -200);
+        sun.transform.setToTranslation(-200, 100*MathUtils.cos(time*0.2f), 100*MathUtils.sin(time*0.2f));
         sun.transform.rotate(0, 1, 0, -200*time);
         sun.transform.scale(50, 50, 50);
     }
@@ -108,6 +123,9 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
         modelBatch.render(test1);
+        for (ModelInstance tree : trees) {
+            modelBatch.render(tree);
+        }
         modelBatch.render(sun);
         modelBatch.render(moon);
         modelBatch.end();
@@ -148,6 +166,8 @@ public class GameScreen implements Screen {
     public void dispose() {
         modelBatch.dispose();
         modelTest1.dispose();
+        modelSphere.dispose();
+        modelTree.dispose();
         postShader.dispose();
     }
 }

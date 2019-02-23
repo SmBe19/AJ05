@@ -46,23 +46,23 @@ void main() {
 
     if (length(v_positionGlobal) < 150.0) {
         highlight = max(highlight, (
-            smoothstep(0.99, 1, sin((v_positionGlobal.x)*0.2 + 11.0 + u_time*0.1)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.z + u_time*31.0 - floor(v_positionGlobal.x*0.1)*33.0)*0.1 + 7.0))
+            smoothstep(0.995, 1, sin((v_positionGlobal.x)*0.2 + 11.0 + u_time*0.01)) *
+            smoothstep(0.98, 1, sin((v_positionGlobal.z + u_time*17.0 - floor(v_positionGlobal.x*0.1)*33.0)*0.1 + 7.0))
         ));
 
         highlight = max(highlight, (
-            smoothstep(0.99, 1, sin((v_positionGlobal.x)*0.2 + 77.0 + u_time*0.12)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.z*0.23 - u_time*47.0 - floor(v_positionGlobal.x*0.1)*37.0)*0.1 + 7.0))
+            smoothstep(0.995, 1, sin((v_positionGlobal.x)*0.2 + 77.0 + u_time*0.012)) *
+            smoothstep(0.98, 1, sin((v_positionGlobal.z*0.23 - u_time*7.0 - floor(v_positionGlobal.x*0.1)*37.0)*0.1 + 7.0))
         ));
 
         highlight = max(highlight, (
-            smoothstep(0.99, 1, sin((v_positionGlobal.z)*0.2 + 11.0 + u_time*0.11)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.x + u_time*29.0 - floor(v_positionGlobal.z*0.1)*35.0)*0.1 + 7.0))
+            smoothstep(0.995, 1, sin((v_positionGlobal.z)*0.2 + 11.0 + u_time*0.011)) *
+            smoothstep(0.98, 1, sin((v_positionGlobal.x + u_time*9.0 - floor(v_positionGlobal.z*0.1)*35.0)*0.1 + 7.0))
         ));
 
         highlight = max(highlight, (
-            smoothstep(0.99, 1, sin((v_positionGlobal.z)*0.2 + 77.0 + u_time*0.13)) *
-            smoothstep(0.98, 1, sin((v_positionGlobal.x*0.23 - u_time*42.0 - floor(v_positionGlobal.z*0.1)*31.0)*0.1 + 7.0))
+            smoothstep(0.995, 1, sin((v_positionGlobal.z)*0.2 + 77.0 + u_time*0.013)) *
+            smoothstep(0.98, 1, sin((v_positionGlobal.x*0.23 - u_time*11.0 - floor(v_positionGlobal.z*0.1)*31.0)*0.1 + 7.0))
         ));
     }
 
