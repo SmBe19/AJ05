@@ -35,7 +35,8 @@ void main(void) {
             dist = min(dist, length(coord - vec2(sin(u_time * (4.0-j*0.3) + i*6.282/u_spell_count), cos(u_time * (4.0-j*0.5) + i*6.282/u_spell_count)) * (0.05 + 0.05*j) * (u_spell * 4.0) - vec2(0.5, 0.45)));
           }
       }
-      gl_FragColor.rgb += (vec3(1.0) - vec3(smoothstep(0.0, 0.02 * smoothstep(u_spell, 0, 0.01), dist)));
+      vec3 rainbow = vec3(sin(u_time * 7.0 + coord.x * 3.141 * 17.0), sin(u_time * 11.0 + coord.y * 3.141 * 17.0), sin(u_time * 17.0)) * vec3(0.5) + vec3(0.5);
+      gl_FragColor.rgb += (vec3(1.0) - vec3(smoothstep(0.0, 0.02 * smoothstep(u_spell, 0, 0.01), dist))) * rainbow;
   }
 
   gl_FragColor.r += smoothstep(0.5, 1.0, u_speed) * 0.12;

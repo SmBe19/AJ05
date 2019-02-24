@@ -12,9 +12,19 @@ varying vec3 v_normal;
 attribute vec2 a_texCoord0;
 varying vec2 v_texCoord0;
 
+uniform float u_time;
+uniform vec4 u_diffuseColor;
+
 void main() {
     v_position = a_position;
-    vec4 pos = u_worldTrans * vec4(a_position, 1.0);
+    vec4 pos = vec4(a_position, 1.0);
+
+    if (u_diffuseColor.g > 0.2) {
+        pos += vec4(a_normal, 0.0) * vec4(sin(a_position*u_time*3.141)*0.5+0.5, 0.0) * 2.0;
+    }
+
+    pos = u_worldTrans * pos;
+
     v_positionGlobal = pos;
 
     v_normal = a_normal;

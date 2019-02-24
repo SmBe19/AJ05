@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.smeanox.games.aj05.Consts;
 import com.smeanox.games.aj05.world.Animal;
 import com.smeanox.games.aj05.world.Bullet;
 import com.smeanox.games.aj05.world.Tree;
@@ -95,7 +96,7 @@ public class GameScreen implements Screen {
         camera.far = 300;
         camera.update();
 
-        frameBuffer = new FrameBuffer(Pixmap.Format.RGB565, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+        frameBuffer = new FrameBuffer(Pixmap.Format.RGB565, Gdx.graphics.getWidth() * Consts.ANTIALIASING, Gdx.graphics.getHeight() * Consts.ANTIALIASING, true);
         frameBufferTexture = new TextureRegion(frameBuffer.getColorBufferTexture());
         frameBufferTexture.flip(false, true);
 
@@ -164,7 +165,7 @@ public class GameScreen implements Screen {
     }
 
     public void addTree() {
-        addTree(MathUtils.random(-90f, 90f), MathUtils.random(-90f, 90f));
+        addTree(MathUtils.random(-Consts.FIELD_WIDTH, Consts.FIELD_WIDTH), MathUtils.random(-Consts.FIELD_HEIGHT, Consts.FIELD_HEIGHT));
     }
 
     public void addAnimal() {
@@ -172,8 +173,8 @@ public class GameScreen implements Screen {
     }
 
     public void boom() {
-        for (int i = 0; i < spellCharge * spellCharge * 3; i++) {
-            bullets.add(new Bullet(this, modelSphere, camera.position, camera.direction, spellCharge * spellCharge * 0.5f));
+        for (int i = 0; i < spellCharge * spellCharge * 17; i++) {
+            bullets.add(new Bullet(this, modelSphere, camera.position, camera.direction, spellCharge * spellCharge * 0.7f));
         }
     }
 
@@ -209,24 +210,27 @@ public class GameScreen implements Screen {
     private void update(float delta) {
         time += delta;
 
-        moon.transform.setToTranslation(40*MathUtils.sin(time), 40*MathUtils.cos(time), -150);
+        float flyDelta = delta * (1 - MathUtils.clamp(spellCharge, 0, 0.99f));
+
+        moon.transform.setToTranslation(70*MathUtils.sin(time), 70*MathUtils.cos(time), -Consts.FIELD_WIDTH * 1.5f);
         moon.transform.rotate(0, 1, 0, -100*time);
         moon.transform.scale(10, 10, 10);
 
-        sun.transform.setToTranslation(-200, 100*MathUtils.cos(time*0.2f), 100*MathUtils.sin(time*0.2f));
+        sun.transform.setToTranslation(-Consts.FIELD_WIDTH * 2f, 100*MathUtils.cos(time*0.2f), 100*MathUtils.sin(time*0.2f));
         sun.transform.rotate(0, 1, 0, -200*time);
         sun.transform.scale(50, 50, 50);
 
         for (Tree tree : trees) {
-            tree.update(delta);
+            tree.update(flyDelta);
         }
         for (Animal animal : animals) {
-            animal.update(delta);
+            animal.update(flyDelta);
         }
 
         for (Bullet bullet : bullets) {
-            bullet.update(delta);
+            bullet.update(flyDelta);
         }
+
         for (int i = trees.size()-1; i >= 0; i--) {
             if (trees.get(i).getDeath() > 3) {
                 trees.remove(i);
@@ -247,19 +251,17 @@ public class GameScreen implements Screen {
 
         float minheight = getFloorHeight(camera.position.x, camera.position.z) + 3;
         if (speed < 10 && downspeed < 100) {
-            downspeed += delta * 10;
+            downspeed += flyDelta * 10;
         } else {
             downspeed = 0;
         }
-        camera.translate(0, -downspeed*delta, 0);
-
-        camera.position.y = Math.max(camera.position.y, minheight);
+        camera.translate(0, -downspeed*flyDelta, 0);
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            speed += delta * 2;
+            speed += flyDelta * 2;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            speed -= delta * 7;
+            speed -= flyDelta * 7;
         }
         speed = MathUtils.clamp(speed, 0, 25);
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
@@ -269,13 +271,15 @@ public class GameScreen implements Screen {
             camera.rotate(camera.up, -delta*40);
         }
 
-        camera.position.clamp(0, 100);
+        camera.position.x = MathUtils.clamp(camera.position.x, -Consts.FIELD_WIDTH*0.9f, Consts.FIELD_WIDTH*0.9f);
+        camera.position.y = MathUtils.clamp(camera.position.y, minheight, 500);
+        camera.position.z = MathUtils.clamp(camera.position.z, -Consts.FIELD_HEIGHT*0.9f, Consts.FIELD_HEIGHT*0.9f);
 
         camera.rotate(camera.direction, Gdx.input.getDeltaX() * delta * 20);
         vec3.set(camera.direction).crs(camera.up);
         camera.rotate(vec3, Gdx.input.getDeltaY() * delta * 20);
 
-        vec3.set(camera.direction).scl(delta*speed);
+        vec3.set(camera.direction).scl(flyDelta*speed);
         camera.translate(vec3);
 
         camera.update();
@@ -305,7 +309,7 @@ public class GameScreen implements Screen {
 
         frameBuffer.begin();
 
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth() * Consts.ANTIALIASING, Gdx.graphics.getHeight() * Consts.ANTIALIASING);
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
@@ -325,6 +329,7 @@ public class GameScreen implements Screen {
 
         frameBuffer.end();
 
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

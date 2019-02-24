@@ -19,7 +19,7 @@ public class Tree {
     }
 
     public void update(float delta) {
-        if (death > 1) {
+        if (death >= 1) {
             death += delta;
         }
     }
@@ -30,6 +30,8 @@ public class Tree {
 
     public void setDeath(float death) {
         this.death = death;
-        this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, 0, 0, 1));
+        if (death > 0.9f) {
+            this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, 0, 0, 1));
+        }
     }
 }

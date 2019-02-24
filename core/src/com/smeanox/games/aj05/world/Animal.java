@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.smeanox.games.aj05.Consts;
 import com.smeanox.games.aj05.screen.GameScreen;
 
 public class Animal {
@@ -23,8 +24,8 @@ public class Animal {
     public Animal(GameScreen gameScreen, Model model) {
         this.gameScreen = gameScreen;
         modelInstance = new ModelInstance(model);
-        float x = MathUtils.random(-90f, 90f);
-        float z = MathUtils.random(-90f, 90f);
+        float x = MathUtils.random(-Consts.FIELD_WIDTH, Consts.FIELD_WIDTH);
+        float z = MathUtils.random(-Consts.FIELD_HEIGHT, Consts.FIELD_HEIGHT);
         modelInstance.transform.translate(x, gameScreen.getFloorHeight(x, z) + 1, z);
         boundingBox = new BoundingBox();
 
@@ -60,7 +61,7 @@ public class Animal {
         modelInstance.calculateTransforms();
         modelInstance.calculateBoundingBox(boundingBox);
 
-        if (death > 1) {
+        if (death >= 1) {
             death += delta;
         }
     }

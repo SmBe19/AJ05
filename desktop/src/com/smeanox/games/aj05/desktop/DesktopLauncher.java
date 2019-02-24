@@ -12,7 +12,6 @@ public class DesktopLauncher {
 		config.title = Consts.GAME_NAME;
 		config.width = Consts.WND_WIDTH;
 		config.height = Consts.WND_HEIGHT;
-		config.samples = 4;
 		new LwjglApplication(new AJ05(), config);
 	}
 }

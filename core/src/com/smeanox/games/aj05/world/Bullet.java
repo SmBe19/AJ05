@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.smeanox.games.aj05.Consts;
 import com.smeanox.games.aj05.screen.GameScreen;
 
 public class Bullet {
@@ -20,12 +21,10 @@ public class Bullet {
 
     public final float angle = 3f;
 
-    // TODO fix bullets!
-
     public Bullet(GameScreen gameScreen, Model model, Vector3 position, Vector3 direction, float power) {
         this.gameScreen = gameScreen;
         modelInstance = new ModelInstance(model);
-        model.materials.get(0).set(ColorAttribute.createDiffuse(0.7f, 0, 0, 1));
+        model.materials.get(0).set(ColorAttribute.createDiffuse(0.7f, 0.5f, 0, 1));
         modelInstance.transform.translate(position);
         this.direction = new Vector3(direction);
         this.direction.rotate(MathUtils.random(-angle*power, angle*power), 0, 1, 0);
@@ -43,7 +42,7 @@ public class Bullet {
     public void update(float delta) {
         modelInstance.transform.translate(vec3.set(direction).scl(delta * 124));
         modelInstance.transform.getTranslation(vec3);
-        if (vec3.len2() > 10000 || vec3.y < -10) {
+        if (vec3.len2() > Consts.FIELD_HEIGHT*Consts.FIELD_HEIGHT*Consts.FIELD_WIDTH*Consts.FIELD_WIDTH || vec3.y < -10) {
             dead = true;
             return;
         }
@@ -52,7 +51,7 @@ public class Bullet {
             animal.modelInstance.transform.getTranslation(vec33);
             if (animal.boundingBox.contains(vec333.set(vec3).sub(vec33))) {
                 dead = true;
-                animal.setDeath(animal.getDeath() + 0.5f);
+                animal.setDeath(animal.getDeath() + 1.2f);
                 return;
             }
         }
@@ -61,7 +60,7 @@ public class Bullet {
             tree.modelInstance.transform.getTranslation(vec33);
             if (tree.boundingBox.contains(vec333.set(vec3).sub(vec33))) {
                 dead = true;
-                tree.setDeath(tree.getDeath() + 0.1f);
+                tree.setDeath(tree.getDeath() + 0.02f);
                 return;
             }
         }
