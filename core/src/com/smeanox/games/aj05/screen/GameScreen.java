@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
@@ -276,11 +277,11 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.F)) {
             speed -= flyDelta * 11;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
             vec3.set(camera.direction).crs(camera.up);
             camera.rotate(vec3, -delta * 40);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             vec3.set(camera.direction).crs(camera.up);
             camera.rotate(vec3, delta * 40);
         }
@@ -291,14 +292,20 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             camera.rotate(camera.up, -delta*40);
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            camera.rotate(camera.direction, -delta * 70);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            camera.rotate(camera.direction, delta * 70);
+        }
 
         camera.position.x = MathUtils.clamp(camera.position.x, -Consts.FIELD_WIDTH*0.9f, Consts.FIELD_WIDTH*0.9f);
         camera.position.y = MathUtils.clamp(camera.position.y, minheight, 500);
         camera.position.z = MathUtils.clamp(camera.position.z, -Consts.FIELD_HEIGHT*0.9f, Consts.FIELD_HEIGHT*0.9f);
 
-        camera.rotate(camera.direction, Gdx.input.getDeltaX() * delta * 20);
+        camera.rotate(camera.direction, Gdx.input.getDeltaX() * Consts.MOUSE_SENSITIVITY_X * delta * 20);
         vec3.set(camera.direction).crs(camera.up);
-        camera.rotate(vec3, Gdx.input.getDeltaY() * delta * 20);
+        camera.rotate(vec3, Gdx.input.getDeltaY() * Consts.MOUSE_SENSITIVITY_Y * delta * 20);
 
         vec3.set(camera.direction).scl(flyDelta*speed);
         camera.translate(vec3);
@@ -336,17 +343,22 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
+        FloatAttribute time_attribute = FloatAttribute.createShininess(time);
+        test1.materials.get(0).set(time_attribute);
         modelBatch.render(test1);
         for (ModelInstance star : stars) {
             modelBatch.render(star);
         }
         for (Tree tree : trees) {
+            tree.modelInstance.materials.get(0).set(time_attribute);
             modelBatch.render(tree.modelInstance);
         }
         for (Animal animal : animals) {
+            animal.modelInstance.materials.get(0).set(time_attribute);
             modelBatch.render(animal.modelInstance);
         }
         for (Bullet bullet : bullets) {
+            bullet.modelInstance.materials.get(0).set(time_attribute);
             modelBatch.render(bullet.modelInstance);
         }
         modelBatch.render(sun);
@@ -360,6 +372,9 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         spriteBatch.begin();
+        postShader.setUniformi("u_aa", Consts.ANTIALIASING);
+        postShader.setUniformf("u_aa_off_x", 1f/(Gdx.graphics.getWidth() * Consts.ANTIALIASING));
+        postShader.setUniformf("u_aa_off_y", 1f/(Gdx.graphics.getHeight() * Consts.ANTIALIASING));
         postShader.setUniformf("u_time", time);
         postShader.setUniformf("u_wobble", 1f + spellCharge * 7f);
         postShader.setUniformf("u_speed", speed/25f + spellCharge * 0.3f);
