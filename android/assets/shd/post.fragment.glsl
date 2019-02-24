@@ -32,6 +32,14 @@ void main(void) {
   coord.x += sin(u_time*3.141+v_texCoords.y*3.141*4.0)*0.0002*wobble;
   coord.y += sin(u_time*3.141*0.5+v_texCoords.x*3.141*8.0)*0.001*wobble;
   gl_FragColor = vec4(0.0);
+  #ifdef GL_ES
+  for(int x = -2; x < 2; x++) {
+    for(int y = -2; y < 2; y++) {
+        gl_FragColor += v_color * texture2D(u_texture, coord + vec2(x, y)*vec2(u_aa_off_x, u_aa_off_y));
+    }
+  }
+  gl_FragColor /= float(u_aa/u_aa) * 16.0; // make sure we use u_aa
+  #else
   int left = -u_aa/2;
   int right = u_aa + left;
   for(int x = left; x < right; x++) {
@@ -40,6 +48,7 @@ void main(void) {
     }
   }
   gl_FragColor /= float((right-left)*(right-left));
+  #endif
   gl_FragColor *= 1.5 - 2.0*length(v_texCoords - vec2(0.5, 0.5));
 
   if (u_spell > 0.001) {

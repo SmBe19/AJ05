@@ -1,0 +1,17 @@
+You are a wizard trapped in Cyberspace! There is not much to occupy yourself with. So you decided that you would like to have some trees to look at. As probably all wizards would do, you set off and transform the inhabitants into trees. As you are a wizard you are of course able to fly!
+
+The game does not really have a goal, just fly around a bit, cast spells to transform the animals, and build up a little forest.
+
+**The web version does not work that well.** Mouse control does not really work, you have to use arrow keys instead. Also the antialiasing does not look as pretty.
+
+# Controls
+W/A/S/D & Arrow Keys & Mouse: control direction you are flying
+F/R: control speed of flight
+Space: Charge spell, release to cast it
+
+# Adjust Parameters
+In the desktop version there are several parameters you can adjust. Pass them as arguments, e.g. `java -jar ce6.jar -aa 2`.
+
+`-aa #`: set antialias samples (default is 4)
+`-resolution width height`: set resolution (default is 1280x600)
+`-mouse x y`: set mouse sensitivity in x and y direction (default is 1 1)
