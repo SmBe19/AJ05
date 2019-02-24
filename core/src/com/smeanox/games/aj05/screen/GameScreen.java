@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -74,6 +75,7 @@ public class GameScreen implements Screen {
 
     public final Sound charge, spell, hit, transform;
     private float chargeOff;
+    public final Music song001;
 
     public GameScreen() {
         vec3 = new Vector3();
@@ -164,6 +166,11 @@ public class GameScreen implements Screen {
         hit = Gdx.audio.newSound(Gdx.files.internal("snd/hit.wav"));
         transform = Gdx.audio.newSound(Gdx.files.internal("snd/transform.wav"));
 
+        song001 = Gdx.audio.newMusic(Gdx.files.internal("msc/song001.ogg"));
+        song001.setLooping(true);
+        song001.setVolume(0.5f);
+        song001.play();
+
         Gdx.input.setCursorCatched(true);
 
         reset();
@@ -194,7 +201,7 @@ public class GameScreen implements Screen {
     }
 
     public void boom() {
-        spell.play(0.8f);
+        spell.play(1.0f);
         for (int i = 0; i < spellCharge * spellCharge * 17; i++) {
             bullets.add(new Bullet(this, modelSphere, camera.position, camera.direction, spellCharge * spellCharge * 0.7f));
         }
