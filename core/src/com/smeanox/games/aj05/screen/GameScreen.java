@@ -104,7 +104,7 @@ public class GameScreen implements Screen {
         modelLoader = new ObjLoader();
 
         modelTest1 = modelLoader.loadModel(Gdx.files.internal("obj/test1.obj"));
-        modelTest1.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
+        modelTest1.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0.5f, 1));
         test1 = new ModelInstance(modelTest1);
         test1.calculateTransforms();
 
@@ -264,7 +264,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             speed -= flyDelta * 7;
         }
-        speed = MathUtils.clamp(speed, 0, 25);
+        speed = MathUtils.clamp(speed, 0, Consts.MAX_FLIGHT_SPEED);
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             camera.rotate(camera.up, delta*40);
         }

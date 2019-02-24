@@ -6,6 +6,7 @@ public class Consts {
     public static final int WND_HEIGHT = 600;
     public static final int ANTIALIASING = 4;
 
-    public static final float FIELD_WIDTH = 1000;
-    public static final float FIELD_HEIGHT = 1000;
+    public static final float FIELD_WIDTH = 250;
+    public static final float FIELD_HEIGHT = 250;
+    public static final float MAX_FLIGHT_SPEED = 30;
 }

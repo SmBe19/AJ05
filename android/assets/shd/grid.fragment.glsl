@@ -30,7 +30,7 @@ void main() {
     if (abs(v_normal.x) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.x));
     }
-    if (abs(v_normal.y) < 1.0-gridsize) {
+    if (u_diffuseColor.b < 0.2f && abs(v_normal.y) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.y));
     }
     if (abs(v_normal.z) < 1.0-gridsize) {
