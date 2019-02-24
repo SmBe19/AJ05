@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -71,7 +72,8 @@ public class GameScreen implements Screen {
     private float spellCharge;
     private boolean didBoom;
 
-    // TODO menu item to adjust mouse sensitivity
+    public final Sound charge, spell, hit, transform;
+    private float chargeOff;
 
     public GameScreen() {
         vec3 = new Vector3();
@@ -157,6 +159,11 @@ public class GameScreen implements Screen {
 
         bullets = new ArrayList<Bullet>();
 
+        charge = Gdx.audio.newSound(Gdx.files.internal("snd/charge.wav"));
+        spell = Gdx.audio.newSound(Gdx.files.internal("snd/spell.wav"));
+        hit = Gdx.audio.newSound(Gdx.files.internal("snd/hit.wav"));
+        transform = Gdx.audio.newSound(Gdx.files.internal("snd/transform.wav"));
+
         Gdx.input.setCursorCatched(true);
 
         reset();
@@ -187,6 +194,7 @@ public class GameScreen implements Screen {
     }
 
     public void boom() {
+        spell.play(0.8f);
         for (int i = 0; i < spellCharge * spellCharge * 17; i++) {
             bullets.add(new Bullet(this, modelSphere, camera.position, camera.direction, spellCharge * spellCharge * 0.7f));
         }
@@ -255,6 +263,7 @@ public class GameScreen implements Screen {
                 animals.get(i).modelInstance.transform.getTranslation(vec3);
                 addTree(vec3.x, vec3.z);
                 animals.remove(i);
+                transform.play(0.8f);
             }
         }
         for (int i = bullets.size()-1; i >= 0; i--) {
@@ -314,11 +323,17 @@ public class GameScreen implements Screen {
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             spellCharge += delta;
+            chargeOff += delta;
+            if (chargeOff > 0.5f) {
+                charge.play(0.8f);
+                chargeOff = 0;
+            }
             didBoom = false;
         } else {
             if (!didBoom && spellCharge > 1) {
                 boom();
                 didBoom = true;
+                chargeOff = 10;
             }
             spellCharge *= 0.8f;
         }

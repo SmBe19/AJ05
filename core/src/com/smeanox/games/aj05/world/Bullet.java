@@ -53,6 +53,7 @@ public class Bullet {
                 dead = true;
                 if (animal.getDeath() < 1.2f) {
                     animal.setDeath(1.2f);
+                    gameScreen.hit.play(0.8f);
                 }
                 return;
             }
