@@ -1,7 +1,7 @@
 package com.smeanox.games.aj05;
 
 public class Consts {
-    public static final String GAME_NAME = "Internet Explorer 6";
+    public static final String GAME_NAME = "Cyber Explorer 6";
     public static final int WND_WIDTH = 1280;
     public static final int WND_HEIGHT = 600;
     public static final int WND_WIDTH_HTML = 1080;

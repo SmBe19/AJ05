@@ -353,6 +353,14 @@ public class GameScreen implements Screen {
         if (MathUtils.randomBoolean(0.01f)) {
             addAnimal();
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            if (song001.isPlaying()) {
+                song001.stop();
+            } else {
+                song001.play();
+            }
+        }
     }
 
     @Override
