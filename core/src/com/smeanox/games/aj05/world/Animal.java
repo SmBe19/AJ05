@@ -59,9 +59,11 @@ public class Animal {
         }
         modelInstance.calculateTransforms();
         modelInstance.calculateBoundingBox(boundingBox);
+        boundingBox.mul(modelInstance.transform);
 
         if (death >= 1) {
             death += delta;
+            walkSpeed *= Math.pow(0.5f, delta);
         }
     }
 
@@ -71,6 +73,6 @@ public class Animal {
 
     public void setDeath(float death) {
         this.death = death;
-        this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, 0, 0, 1));
+        this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, death / 6f, 0, 1));
     }
 }

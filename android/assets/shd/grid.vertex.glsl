@@ -19,8 +19,10 @@ void main() {
     v_position = a_position;
     vec4 pos = vec4(a_position, 1.0);
 
-    if (u_diffuseColor.g > 0.2) {
+    if (u_diffuseColor.g > 0.8) {
         pos += vec4(a_normal, 0.0) * vec4(sin(a_position*u_time*3.141)*0.5+0.5, 0.0) * 2.0;
+    } else if (u_diffuseColor.g > 0.1) {
+        pos += vec4(a_normal, 0.0) * vec4(sin(u_time*3.141)*0.5+0.5) * 0.8 * u_diffuseColor.g;
     }
 
     pos = u_worldTrans * pos;

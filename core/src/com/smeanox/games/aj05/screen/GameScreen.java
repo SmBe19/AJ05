@@ -53,6 +53,7 @@ public class GameScreen implements Screen {
     private Model modelSphere;
     private ModelInstance moon;
     private ModelInstance sun;
+    private List<ModelInstance> stars;
 
     private Model modelTree;
     private List<Tree> trees;
@@ -123,12 +124,23 @@ public class GameScreen implements Screen {
         moon = new ModelInstance(modelSphere);
         sun = new ModelInstance(modelSphere);
 
+        stars = new ArrayList<ModelInstance>();
+        for (int i = 0; i < 1000; i++) {
+            vec3.set(MathUtils.random(-1f, 1f), MathUtils.random(0f, 1f), MathUtils.random(-1f, 1f)).nor().scl(MathUtils.random(400f, 800f));
+            ModelInstance star = new ModelInstance(modelSphere);
+            star.transform.translate(vec3);
+            star.transform.scale(2, 2, 2);
+            stars.add(star);
+        }
+
         modelTree = modelLoader.loadModel(Gdx.files.internal("obj/tree.obj"));
         modelTree.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
         trees = new ArrayList<Tree>();
+        /*
         for (int i = 0; i < 10; i++) {
             addTree();
         }
+        */
 
         modelAnimals = new ArrayList<Model>();
         for (int i = 0; i < 3; i++) {
@@ -233,7 +245,7 @@ public class GameScreen implements Screen {
         }
 
         for (int i = trees.size()-1; i >= 0; i--) {
-            if (trees.get(i).getDeath() > 3) {
+            if (trees.get(i).getDeath() > 4) {
                 trees.remove(i);
             }
         }
@@ -258,11 +270,19 @@ public class GameScreen implements Screen {
         }
         camera.translate(0, -downspeed*flyDelta, 0);
 
+        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            speed += flyDelta * 3;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.F)) {
+            speed -= flyDelta * 11;
+        }
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            speed += flyDelta * 2;
+            vec3.set(camera.direction).crs(camera.up);
+            camera.rotate(vec3, -delta * 40);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            speed -= flyDelta * 7;
+            vec3.set(camera.direction).crs(camera.up);
+            camera.rotate(vec3, delta * 40);
         }
         speed = MathUtils.clamp(speed, 0, Consts.MAX_FLIGHT_SPEED);
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
@@ -317,6 +337,9 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         modelBatch.begin(camera);
         modelBatch.render(test1);
+        for (ModelInstance star : stars) {
+            modelBatch.render(star);
+        }
         for (Tree tree : trees) {
             modelBatch.render(tree.modelInstance);
         }

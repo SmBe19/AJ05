@@ -79,7 +79,7 @@ void main() {
         gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, sin(u_time*4.0*u_diffuseColor.r)*0.5+0.5);
     }
 
-    if (u_diffuseColor.g > 0.2) {
+    if (u_diffuseColor.g > 0.8) {
         vec3 rainbow = vec3(sin(u_time * 7.0 + (v_texCoord0.x + v_positionGlobal.z*0.01) * 3.141 * 7.0), sin(u_time * 11.0 + (v_texCoord0.y + v_positionGlobal.x*0.01) * 3.141 * 7.0), sin(u_time * 17.0)) * vec3(0.5) + vec3(0.5);
         gl_FragColor.rgb = rainbow;
     }

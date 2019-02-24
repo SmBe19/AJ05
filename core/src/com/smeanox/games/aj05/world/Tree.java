@@ -15,6 +15,7 @@ public class Tree {
         this.modelInstance.transform.translate(x, y, z);
         this.boundingBox = new BoundingBox();
         this.modelInstance.calculateBoundingBox(boundingBox);
+        boundingBox.mul(this.modelInstance.transform);
         death = 0;
     }
 
@@ -31,7 +32,7 @@ public class Tree {
     public void setDeath(float death) {
         this.death = death;
         if (death > 0.9f) {
-            this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, 0, 0, 1));
+            this.modelInstance.materials.get(0).set(ColorAttribute.createDiffuse(death, death / 6f, 0, 1));
         }
     }
 }

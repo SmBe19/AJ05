@@ -24,7 +24,7 @@ public class Bullet {
     public Bullet(GameScreen gameScreen, Model model, Vector3 position, Vector3 direction, float power) {
         this.gameScreen = gameScreen;
         modelInstance = new ModelInstance(model);
-        model.materials.get(0).set(ColorAttribute.createDiffuse(0.7f, 0.5f, 0, 1));
+        model.materials.get(0).set(ColorAttribute.createDiffuse(0.7f, 1, 0, 1));
         modelInstance.transform.translate(position);
         this.direction = new Vector3(direction);
         this.direction.rotate(MathUtils.random(-angle*power, angle*power), 0, 1, 0);
@@ -49,16 +49,18 @@ public class Bullet {
 
         for (Animal animal : gameScreen.getAnimals()) {
             animal.modelInstance.transform.getTranslation(vec33);
-            if (animal.boundingBox.contains(vec333.set(vec3).sub(vec33))) {
+            if (animal.boundingBox.contains(vec3)) {
                 dead = true;
-                animal.setDeath(animal.getDeath() + 1.2f);
+                if (animal.getDeath() < 1.2f) {
+                    animal.setDeath(1.2f);
+                }
                 return;
             }
         }
 
         for (Tree tree : gameScreen.getTrees()) {
             tree.modelInstance.transform.getTranslation(vec33);
-            if (tree.boundingBox.contains(vec333.set(vec3).sub(vec33))) {
+            if (tree.boundingBox.contains(vec3)) {
                 dead = true;
                 tree.setDeath(tree.getDeath() + 0.02f);
                 return;
