@@ -25,7 +25,13 @@ void main(void) {
   float wobble = u_wobble * ((sin(u_time*0.1)*0.5+0.5) + 0.5);
   coord.x += sin(u_time*3.141+v_texCoords.y*3.141*4.0)*0.0002*wobble;
   coord.y += sin(u_time*3.141*0.5+v_texCoords.x*3.141*8.0)*0.001*wobble;
-  gl_FragColor = v_color * texture2D(u_texture, coord);
+  gl_FragColor = vec4(0.0);
+  for(int x = -2; x < 3; x++) {
+    for(int y = -2; y < 3; y++) {
+        gl_FragColor += v_color * texture2D(u_texture, coord + vec2(x, y)*0.0005);
+    }
+  }
+  gl_FragColor /= 25.0;
   gl_FragColor *= 1.5 - 2.0*length(v_texCoords - vec2(0.5, 0.5));
 
   if (u_spell > 0.001) {
