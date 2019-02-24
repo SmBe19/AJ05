@@ -21,11 +21,11 @@ public class Animal {
     private float jumpSpeed, jumpHeight, walkSpeed;
     private float death;
 
-    public Animal(GameScreen gameScreen, Model model) {
+    public Animal(GameScreen gameScreen, Model model, float speed) {
         this.gameScreen = gameScreen;
         modelInstance = new ModelInstance(model);
-        float x = MathUtils.random(-Consts.FIELD_WIDTH, Consts.FIELD_WIDTH);
-        float z = MathUtils.random(-Consts.FIELD_HEIGHT, Consts.FIELD_HEIGHT);
+        float x = MathUtils.random(-Consts.FIELD_WIDTH * 0.9f, Consts.FIELD_WIDTH * 0.9f);
+        float z = MathUtils.random(-Consts.FIELD_HEIGHT * 0.9f, Consts.FIELD_HEIGHT * 0.9f);
         modelInstance.transform.translate(x, gameScreen.getFloorHeight(x, z) + 1, z);
         boundingBox = new BoundingBox();
 
@@ -33,7 +33,7 @@ public class Animal {
         destZ = z;
         jumpSpeed = MathUtils.random(0.1f, 5f);
         jumpHeight = MathUtils.random(0.1f, 5f);
-        walkSpeed = MathUtils.random(1f, 7f);
+        walkSpeed = MathUtils.random(1f, 7f) * speed;
 
         death = 0;
 
@@ -44,19 +44,18 @@ public class Animal {
         modelInstance.transform.getTranslation(vec3);
         float dx = destX - vec3.x;
         float dz = destZ - vec3.z;
-        if (dx*dx + dz*dz < 20) {
-            destX = vec3.x + MathUtils.random(-50f, 50f);
-            destZ = vec3.z + MathUtils.random(-50f, 50f);
-            Vector3 dest = new Vector3(destX, 0, destZ);
-            Vector3 cur = new Vector3(vec3);
-            cur.y = 0;
-            modelInstance.transform.setToLookAt(cur, dest, Vector3.Y);
+        if (dx*dx + dz*dz < 20 * walkSpeed) {
+            destX = MathUtils.clamp(vec3.x + MathUtils.random(-30f * walkSpeed, 30f * walkSpeed), -Consts.FIELD_WIDTH * 0.9f, Consts.FIELD_WIDTH * 0.9f);
+            destZ = MathUtils.clamp(vec3.z + MathUtils.random(-30f * walkSpeed, 30f * walkSpeed), -Consts.FIELD_HEIGHT * 0.9f, Consts.FIELD_HEIGHT * 0.9f);
+            dx = destX - vec3.x;
+            dz = destZ - vec3.z;
+            modelInstance.transform.setToRotationRad(0, 1, 0, MathUtils.atan2(dx, dz));
+            modelInstance.transform.setTranslation(vec3);
         } else {
             float floor = gameScreen.getFloorHeight(vec3.x, vec3.z);
             jumpProgress += delta * jumpSpeed;
             modelInstance.transform.translate(0, floor + (MathUtils.sin(jumpProgress)*0.5f+0.5f) * jumpHeight + 1 - vec3.y, 0);
-            vec3.set(dx, 0, dz).nor().scl(delta*walkSpeed);
-            modelInstance.transform.translate(vec3);
+            modelInstance.transform.translate(0, 0, delta*walkSpeed);
         }
         modelInstance.calculateTransforms();
         modelInstance.calculateBoundingBox(boundingBox);

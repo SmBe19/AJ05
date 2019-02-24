@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -94,7 +93,7 @@ public class GameScreen implements Screen {
         camera.position.set(0, 0, 17);
         camera.lookAt(0, 0, 0);
         camera.near = 1;
-        camera.far = 300;
+        camera.far = 700;
         camera.update();
 
         frameBuffer = new FrameBuffer(Pixmap.Format.RGB565, Gdx.graphics.getWidth() * Consts.ANTIALIASING, Gdx.graphics.getHeight() * Consts.ANTIALIASING, true);
@@ -132,14 +131,14 @@ public class GameScreen implements Screen {
         }
 
         modelAnimals = new ArrayList<Model>();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             Model model = modelLoader.loadModel(Gdx.files.internal("obj/animal" + (i + 1) + ".obj"));
             model.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
             modelAnimals.add(model);
         }
 
         animals = new ArrayList<Animal>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             addAnimal();
         }
 
@@ -170,7 +169,8 @@ public class GameScreen implements Screen {
     }
 
     public void addAnimal() {
-        animals.add(new Animal(this, modelAnimals.get(MathUtils.random(modelAnimals.size()-1))));
+        int random = MathUtils.random(modelAnimals.size() - 1);
+        animals.add(new Animal(this, modelAnimals.get(random), random == 2 ? 7 : 1));
     }
 
     public void boom() {
@@ -213,11 +213,11 @@ public class GameScreen implements Screen {
 
         float flyDelta = delta * (1 - MathUtils.clamp(spellCharge, 0, 0.99f));
 
-        moon.transform.setToTranslation(70*MathUtils.sin(time), 70*MathUtils.cos(time), -Consts.FIELD_WIDTH * 1.5f);
+        moon.transform.setToTranslation(90*MathUtils.sin(time), 90*MathUtils.cos(time), -Consts.FIELD_WIDTH * 1.5f);
         moon.transform.rotate(0, 1, 0, -100*time);
         moon.transform.scale(10, 10, 10);
 
-        sun.transform.setToTranslation(-Consts.FIELD_WIDTH * 2f, 100*MathUtils.cos(time*0.2f), 100*MathUtils.sin(time*0.2f));
+        sun.transform.setToTranslation(-Consts.FIELD_WIDTH * 2f, 170*MathUtils.cos(time*0.2f), 170*MathUtils.sin(time*0.2f));
         sun.transform.rotate(0, 1, 0, -200*time);
         sun.transform.scale(50, 50, 50);
 
@@ -296,9 +296,11 @@ public class GameScreen implements Screen {
             spellCharge *= 0.8f;
         }
 
+        /*
         if (MathUtils.randomBoolean(0.001f)) {
             addTree();
         }
+        */
         if (MathUtils.randomBoolean(0.01f)) {
             addAnimal();
         }
