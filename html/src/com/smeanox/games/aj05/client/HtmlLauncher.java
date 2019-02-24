@@ -12,7 +12,6 @@ public class HtmlLauncher extends GwtApplication {
         @Override
         public GwtApplicationConfiguration getConfig () {
                 GwtApplicationConfiguration config = new GwtApplicationConfiguration(Consts.WND_WIDTH, Consts.WND_HEIGHT);
-                config.antialiasing = true;
                 return config;
         }
         // END CODE FOR FIXED SIZE APPLICATION

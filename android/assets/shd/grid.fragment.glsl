@@ -30,7 +30,7 @@ void main() {
     if (abs(v_normal.x) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.x));
     }
-    if (u_diffuseColor.b < 0.2f && abs(v_normal.y) < 1.0-gridsize) {
+    if (u_diffuseColor.b < 0.2 && abs(v_normal.y) < 1.0-gridsize) {
         grid = max(grid, grid_dist(posmod.y));
     }
     if (abs(v_normal.z) < 1.0-gridsize) {
@@ -46,7 +46,7 @@ void main() {
 
     float highlight = 0.0;
 
-    if (length(v_positionGlobal) < 150.0) {
+    if (length(v_positionGlobal) < 300.0) {
         highlight = max(highlight, (
             smoothstep(0.995, 1.0, sin((v_positionGlobal.x)*0.2 + 11.0 + u_time*0.01)) *
             smoothstep(0.98, 1.0, sin((v_positionGlobal.z + u_time*17.0 - floor(v_positionGlobal.x*0.1)*33.0)*0.1 + 7.0))
@@ -76,7 +76,7 @@ void main() {
     gl_FragColor.rgb *= sin(u_time*0.1)*0.05+0.95;
 
     if (u_diffuseColor.r > 0.2) {
-        gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0, sin(u_time*4.0*u_diffuseColor.r)*0.5+0.5);
+        gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0.0, sin(u_time*4.0*u_diffuseColor.r)*0.5+0.5);
     }
 
     if (u_diffuseColor.g > 0.8) {

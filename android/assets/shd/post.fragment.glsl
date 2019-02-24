@@ -1,9 +1,12 @@
-#version 120
 #ifdef GL_ES
 #define LOWP lowp
+#define MED mediump
+#define HIGH highp
 precision mediump float;
 #else
+#define MED
 #define LOWP
+#define HIGH
 #endif
 
 varying vec2 v_texCoords;
@@ -11,9 +14,9 @@ varying LOWP vec4 v_color;
 
 uniform sampler2D u_texture;
 uniform float u_time;
-uniform float u_wobble = 1.0;
-uniform float u_speed = 0.0;
-uniform float u_spell = 0.0;
+uniform float u_wobble;
+uniform float u_speed;
+uniform float u_spell;
 const float u_spell_rings = 5.0;
 const float u_spell_count = 9.0;
 
@@ -36,13 +39,13 @@ void main(void) {
 
   if (u_spell > 0.001) {
       float dist = 100.0;
-      for(float j = 0; j < u_spell_rings; j++) {
-          for(float i = 0; i < u_spell_count; i++) {
+      for(float j = 0.0; j < u_spell_rings; j++) {
+          for(float i = 0.0; i < u_spell_count; i++) {
             dist = min(dist, length(coord - vec2(sin(u_time * (4.0-j*0.3) + i*6.282/u_spell_count), cos(u_time * (4.0-j*0.5) + i*6.282/u_spell_count)) * (0.05 + 0.05*j) * (u_spell * 4.0) - vec2(0.5, 0.45)));
           }
       }
       vec3 rainbow = vec3(sin(u_time * 7.0 + coord.x * 3.141 * 17.0), sin(u_time * 11.0 + coord.y * 3.141 * 17.0), sin(u_time * 17.0)) * vec3(0.5) + vec3(0.5);
-      gl_FragColor.rgb += (vec3(1.0) - vec3(smoothstep(0.0, 0.02 * smoothstep(u_spell, 0, 0.01), dist))) * rainbow;
+      gl_FragColor.rgb += (vec3(1.0) - vec3(smoothstep(0.0, 0.02 * smoothstep(u_spell, 0.0, 0.01), dist))) * rainbow;
   }
 
   gl_FragColor.r += smoothstep(0.5, 1.0, u_speed) * 0.12;
