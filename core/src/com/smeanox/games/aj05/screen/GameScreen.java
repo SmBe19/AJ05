@@ -143,7 +143,7 @@ public class GameScreen implements Screen {
         */
 
         modelAnimals = new ArrayList<Model>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             Model model = modelLoader.loadModel(Gdx.files.internal("obj/animal" + (i + 1) + ".obj"));
             model.materials.get(0).set(ColorAttribute.createDiffuse(0, 0, 0, 1));
             modelAnimals.add(model);
